@@ -5,27 +5,10 @@ using UnityEngine;
 public class Grabable : MonoBehaviour {
 	Transform anchor = null;
 	bool hasAnchor = false;
-	public bool moving = false;
-	public Vector3 lastPos;
 
-	void LateUpdate () {
-		if (moving && hasAnchor) {
-			lastPos = anchor.position;
-		}
-	}
-
-	public Vector3 anchorPos ()
+	public Vector3 GetAnchorPos ()
 	{
 		return anchor.position;
-	}
-
-	public Vector3 anchorDiff ()
-	{
-		if (moving) {
-			return anchor.position - lastPos;
-		} else {
-			return Vector3.zero;
-		}
 	}
 
 	public void CreateAnchor (Vector3 anchorPos)
@@ -35,10 +18,6 @@ public class Grabable : MonoBehaviour {
 			hasAnchor = true;
 		}
 		anchor.position = anchorPos;
-
-		if (moving) {
-			lastPos = anchor.position;
-		}
 	}
 
 	public void DestoryAnchor ()

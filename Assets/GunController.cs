@@ -15,12 +15,15 @@ public class GunController : MonoBehaviour {
 	public float maxRange;
 	public float swingForce;
 	public float grabThrowForceMul;
+	public float maxThrowForce;
 	public float grappleTolerence;
 	public float grabTolerence;
 	float lastDist;
 	Vector3 lastPos;
+	Vector3 grabOffset;
 	public float swingMultiplier;
 	public LayerMask mask;
+	public LayerMask collidableLayers;
 	public Grabable grabed = null;
 
 	// visuals
@@ -37,6 +40,7 @@ public class GunController : MonoBehaviour {
 	PlayerController pc;
 	Rigidbody rb;
 	MeshRenderer barrelRenderer;
+	CapsuleCollider capsule;
 	
 	void Start() {
 		barrelEnd = transform.Find("Spawn");
@@ -44,6 +48,7 @@ public class GunController : MonoBehaviour {
 		lr.enabled = false;
 		pc = GetComponentInParent<PlayerController>();
 		rb = GetComponentInParent<Rigidbody>();
+		capsule = GetComponentInParent<CapsuleCollider>();
 		barrelRenderer = transform.Find("Barrel").GetComponent<MeshRenderer>();
 		
 		// initialize input
@@ -54,21 +59,20 @@ public class GunController : MonoBehaviour {
 		}
 	}
 
-	void GrappleAttach (GrappleData data) {
+	void GrappleAttach (AttachData data) {
 		if (otherGun.grabed != null) {
 			if (data.obj == otherGun.grabed.transform) {
 				return;
 			}
 		}
 		
-
 		state = State.grappling;
 		GetNewAnchor(data.pos, data.obj);
 
 		lr.enabled = true;
 		UpdateLine();
 
-		Vector3 diff = grabed.anchorPos() - barrelEnd.position;
+		Vector3 diff = grabed.GetAnchorPos() - barrelEnd.position;
 		lastDist = diff.magnitude;
 	}
 
@@ -83,34 +87,37 @@ public class GunController : MonoBehaviour {
 		}
 	}
 
-	void Grab (Transform obj) {
-		state = State.grabing;
-		GetNewAnchor(obj.position, obj);
-		rb.isKinematic = true;
+	void GrabAttach (AttachData data) {
+		otherGun.OtherGunGrabbed(data.obj);
+		GetNewAnchor(data.pos, data.obj);
 
+		state = State.grabing;
+		rb.isKinematic = true;
 		barrelRenderer.material.color = Color.green;
 
-		otherGun.OtherGunGrabbed(obj);
-
+		grabOffset = rb.transform.position - data.pos;
 		lastPos = barrelEnd.position;
 	}
 
-	void EndGrab ()
+	void EndGrab (bool attached)
 	{
 		barrelRenderer.material.color = Color.red;
 		rb.isKinematic = false;
 
-		// calculate departing velocity
-		Vector3 diff = lastPos - barrelEnd.position;
-		rb.AddForce(diff * grabThrowForceMul);
+		if (!attached) {
+			// calculate departing velocity
+			Vector3 diff = lastPos - barrelEnd.position;
+			Vector3 force = Vector3.ClampMagnitude(diff * grabThrowForceMul, maxThrowForce);
+			rb.AddForce(force);
+		}
 	}
 
-	void Detach ()
+	void Detach (bool attached = false)
 	{
 		if (state == State.grappling) {
 			lr.enabled = false;
 		} else if (state == State.grabing) {
-			EndGrab();
+			EndGrab(attached);
 		}
 
 		state = State.detached;
@@ -129,18 +136,18 @@ public class GunController : MonoBehaviour {
 	void UpdateLine ()
 	{
 		lr.SetPosition(0, barrelEnd.position);
-		lr.SetPosition(1, grabed.anchorPos());
+		lr.SetPosition(1, grabed.GetAnchorPos());
 	}
 
 	void Update() {
 		if (SteamVR_Input._default.inActions.GrabPinch.GetStateDown(inputSources)) {
 			if (state == State.detached) {
 				// grab takes priority
-				Transform target = GetGrabTarget();
-				if (target != null) {
-					Grab(target);
+				AttachData? target = GetGrabTarget();
+				if (target.HasValue) {
+					GrabAttach(target.Value);
 				} else {
-					GrappleData data = GetGrappleTarget();
+					AttachData data = GetGrappleTarget();
 					if (data.obj != null) {
 						GrappleAttach(data);
 					}
@@ -155,7 +162,7 @@ public class GunController : MonoBehaviour {
 		if (state == State.grappling) {
 			UpdateLine();
 
-			Vector3 diff = grabed.anchorPos() - barrelEnd.position;
+			Vector3 diff = grabed.GetAnchorPos() - barrelEnd.position;
 			float dist = diff.magnitude;
 			float distDiff = dist - lastDist;
 			float forceMul = 1f;
@@ -165,46 +172,76 @@ public class GunController : MonoBehaviour {
 
 			if (dist > grabTolerence * 2f) {
 				rb.AddForce(diff.normalized * swingForce * forceMul * Time.deltaTime);
-			} else {
-				Transform possibleGrab = GetGrabTarget();
-				if (possibleGrab != null) {
-					Detach();
-					Grab(possibleGrab);
-				}
 			}
 			lastDist = dist;
+
+			AttachData? possibleGrab = GetGrabTarget();
+			if (possibleGrab.HasValue) {
+				Detach();
+				GrabAttach(possibleGrab.Value);
+			}
 		} else if (state == State.grabing) {
 			Vector3 handDiff = lastPos - barrelEnd.position;
-			rb.transform.Translate(handDiff + grabed.anchorDiff(), Space.World);
+			Vector3 targetPos = grabed.GetAnchorPos() + grabOffset + handDiff;
+
+			// test to see if the move would put the player into an object
+			Vector3 capsuleOffset = new Vector3(capsule.center.x, 0f, capsule.center.z);
+			Collider[] colls = Physics.OverlapCapsule(targetPos + capsuleOffset + Vector3.up * (capsule.radius), targetPos + capsuleOffset + Vector3.up * (capsule.height - capsule.radius), capsule.radius, collidableLayers);
+
+			if (colls.Length > 0) {
+				RecenterPlayer(true);
+			} else { // position valid
+				grabOffset += handDiff;
+				rb.transform.position = grabOffset + grabed.GetAnchorPos();
+				RecenterPlayer();
+			}
 
 			lastPos = barrelEnd.position;
 
+			// check to make sure still on wall
+			AttachData? possibleGrab = GetGrabTarget();
+			if (!possibleGrab.HasValue) {
+				Detach();
+				return;
+			}
+		}
+
+		if (otherGun.state != State.grabing && state != State.grabing) {
+			RecenterPlayer();
 		}
 	}
 
-	GrappleData GetGrappleTarget ()
+	void RecenterPlayer (bool compensate = false) {
+		Vector3 curCenter = capsule.center;
+		capsule.center = new Vector3(Camera.main.transform.localPosition.x, capsule.center.y, Camera.main.transform.localPosition.z);
+		if (compensate) {
+			rb.transform.Translate(-capsule.center + curCenter);
+		}
+	}
+
+	AttachData GetGrappleTarget ()
 	{
 		RaycastHit hit;
 		Physics.SphereCast(barrelEnd.position, grappleTolerence, barrelEnd.transform.forward, out hit, maxRange, mask);
-		return new GrappleData (hit.point, hit.transform);
+		return new AttachData (hit.point, hit.transform);
 	}
 
-	Transform GetGrabTarget ()
+	AttachData? GetGrabTarget ()
 	{
 		Collider[] colls = Physics.OverlapSphere(barrelEnd.position, grabTolerence, mask);
 		if (colls.Length > 0) {
-			return colls[0].transform;
+			return new AttachData (transform.position, colls[0].transform);
 		} else {
 			return null;
 		}
 	}
 
-	private struct GrappleData
+	private struct AttachData
 	{
 		public Vector3 pos;
 		public Transform obj;
 
-		public GrappleData (Vector3 pos, Transform obj)
+		public AttachData (Vector3 pos, Transform obj)
 		{
 			this.pos = pos;
 			this.obj = obj;
