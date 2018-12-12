@@ -9,6 +9,16 @@ public class TerrainGenerator : MonoBehaviour {
     public int maxNumChunks;
 
     [Space(15)]
+    public float launchRadius;
+    public float launchBuffer;
+    public float minLaunchWait;
+    public float maxLaunchWait;
+    public float launchConeAngle;
+    public float minLaunchSpeed;
+    public float maxLaunchSpeed;
+    float nextLaunch;
+
+    [Space(15)]
     public GameObject asteroidPrefab;
 
     int curChunkId;
@@ -18,6 +28,7 @@ public class TerrainGenerator : MonoBehaviour {
 
     void Start() {
         playerObj = FindObjectOfType<PlayerController>().transform;
+        nextLaunch = Time.time + Random.Range(minLaunchWait, maxLaunchWait);
         UpdateTerrain();
     }
 
@@ -46,6 +57,25 @@ public class TerrainGenerator : MonoBehaviour {
         chunks.Add(newChunk);
 
         curChunkId = nextChunkId;
+    }
+
+    void Update() {
+        if (Time.time > nextLaunch) {
+            nextLaunch = Time.time + Random.Range(minLaunchWait, maxLaunchWait);
+            LaunchAsteroid();
+        }
+    }
+
+    void LaunchAsteroid() {
+        float randomAngle = Random.Range(0, Mathf.PI); // a random angle on the top of the unit circle
+        Vector3 spawnPos = new Vector3(Mathf.Cos(randomAngle) * launchRadius, Mathf.Sin(randomAngle) * launchRadius, playerObj.position.z + launchBuffer);
+
+        GameObject newMovingAsteroid = Instantiate(asteroidPrefab, spawnPos, Quaternion.identity, chunks[chunks.Count - 1].transform); //include it in the farthest forward chunk so that it unloads last
+        Rigidbody newAsteroidRb = newMovingAsteroid.GetComponent<Rigidbody>();
+        newAsteroidRb.drag = 0;
+
+        Quaternion launchAngle = Quaternion.Euler(0, Random.Range(-launchConeAngle, launchConeAngle), (randomAngle * Mathf.Rad2Deg) - 180f + Random.Range(-launchConeAngle, launchConeAngle));
+        newAsteroidRb.velocity = launchAngle * Vector3.right * Random.Range(minLaunchSpeed, maxLaunchSpeed);
     }
 
     void LateUpdate() {
