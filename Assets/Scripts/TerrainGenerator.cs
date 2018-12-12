@@ -5,28 +5,56 @@ using UnityEngine;
 public class TerrainGenerator : MonoBehaviour {
     public float terrainStep;
     public float beltRadius;
-    public float initialLoadAmount;
+    public float chunkSize;
+    public int maxNumChunks;
 
     [Space(15)]
     public GameObject asteroidPrefab;
 
-    float curMaxTerrainDistance;
+    int curChunkId;
+    List<GameObject> chunks = new List<GameObject>();
+
+    Transform playerObj;
 
     void Start() {
-        GenerateTerrain(initialLoadAmount);
+        playerObj = FindObjectOfType<PlayerController>().transform;
+        UpdateTerrain();
     }
 
-    void GenerateTerrain(float distance) {
-        float curSpawnDist = curMaxTerrainDistance;
-        curMaxTerrainDistance += distance;
+    void UpdateTerrain() {
+        int nextChunkId = curChunkId + 1; // currently chunks only load forwards
+        float chunkStart = GetPosForChunkId(curChunkId);
+        float chunkEnd = GetPosForChunkId(nextChunkId);
+        float curSpawnPos = chunkStart;
 
-        while (curSpawnDist < curMaxTerrainDistance) {
+        GameObject newChunk = new GameObject("Chunk" + curChunkId);
+
+        while (curSpawnPos < chunkEnd) {
             Vector2 circlePos = Random.insideUnitCircle * beltRadius;
-            Vector3 spawnPos = new Vector3(circlePos.x, circlePos.y, curSpawnDist);
+            Vector3 spawnPos = new Vector3(circlePos.x, circlePos.y, curSpawnPos);
 
-            Instantiate(asteroidPrefab, spawnPos, Random.rotation);
+            Instantiate(asteroidPrefab, spawnPos, Quaternion.identity, newChunk.transform);
 
-            curSpawnDist += terrainStep;
+            curSpawnPos += terrainStep;
         }
+
+        // delete farthest back chunk
+        if (chunks.Count == maxNumChunks) {
+            Destroy(chunks[0]);
+            chunks.RemoveAt(0);
+        }
+        chunks.Add(newChunk);
+
+        curChunkId = nextChunkId;
+    }
+
+    void LateUpdate() {
+        if (playerObj.position.z + chunkSize > GetPosForChunkId(curChunkId)) { // if we are close to the "next chunk" we should make a new one
+            UpdateTerrain();
+        }
+    }
+
+    float GetPosForChunkId(int id) {
+        return id * chunkSize + transform.position.z;
     }
 }
