@@ -7,6 +7,7 @@ public class WormController : MonoBehaviour {
 	public float startFollowDist;
 	public float maxFollowDist;
 	public float speed;
+	public float speedIncreaseRate;
 
 	void Start () {
 		player = FindObjectOfType<PlayerController>().transform;
@@ -20,5 +21,7 @@ public class WormController : MonoBehaviour {
 		}
 		transform.LookAt(player);
 		transform.position += transform.forward * curSpeed * Time.deltaTime;
+
+		speed += speedIncreaseRate * Time.deltaTime;
 	}
 }
