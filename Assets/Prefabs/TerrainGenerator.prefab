@@ -53,6 +53,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   terrainStep: 5
   beltRadius: 15
-  initialLoadAmount: 100
+  chunkSize: 100
+  maxNumChunks: 4
   asteroidPrefab: {fileID: 1489611134521214, guid: 20ac4a9b9d4e24818ab2f73e386250aa,
     type: 2}
