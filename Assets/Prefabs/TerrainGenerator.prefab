@@ -55,5 +55,12 @@ MonoBehaviour:
   beltRadius: 20
   chunkSize: 200
   maxNumChunks: 5
+  launchRadius: 50
+  launchBuffer: 50
+  minLaunchWait: 5
+  maxLaunchWait: 15
+  launchConeAngle: 20
+  minLaunchSpeed: 1
+  maxLaunchSpeed: 20
   asteroidPrefab: {fileID: 1132267318016648, guid: 354dca690f0d04945bdbf300d1394ca0,
     type: 2}
