@@ -49,7 +49,7 @@ public class TerrainGenerator : MonoBehaviour {
     }
 
     void LateUpdate() {
-        if (playerObj.position.z + chunkSize > GetPosForChunkId(curChunkId)) { // if we are close to the "next chunk" we should make a new one
+        if (playerObj.position.z + chunkSize > GetPosForChunkId(curChunkId - 1)) { // if we are close to the "next chunk" we should make a new one
             UpdateTerrain();
         }
     }

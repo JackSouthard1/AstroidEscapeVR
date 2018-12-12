@@ -52,8 +52,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   terrainStep: 5
-  beltRadius: 15
-  chunkSize: 100
-  maxNumChunks: 4
-  asteroidPrefab: {fileID: 1489611134521214, guid: 20ac4a9b9d4e24818ab2f73e386250aa,
+  beltRadius: 20
+  chunkSize: 200
+  maxNumChunks: 5
+  asteroidPrefab: {fileID: 1132267318016648, guid: 354dca690f0d04945bdbf300d1394ca0,
     type: 2}
