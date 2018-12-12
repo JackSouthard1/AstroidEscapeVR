@@ -171,7 +171,9 @@ public class GunController : MonoBehaviour {
 			}
 
 			if (dist > grabTolerence * 2f) {
-				rb.AddForce(diff.normalized * swingForce * forceMul * Time.deltaTime);
+				Vector3 force = diff.normalized * swingForce * forceMul * Time.deltaTime;
+				rb.AddForce(force);
+				grabed.AddForce(-force);
 			}
 			lastDist = dist;
 
@@ -204,6 +206,9 @@ public class GunController : MonoBehaviour {
 				Detach();
 				return;
 			}
+
+			// apply downward force to object we are grabbing
+			grabed.AddForce(rb.mass * Physics.gravity);
 		}
 
 		if (otherGun.state != State.grabing && state != State.grabing) {

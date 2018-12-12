@@ -5,19 +5,28 @@ using UnityEngine;
 public class Grabable : MonoBehaviour {
 	Transform anchor = null;
 	bool hasAnchor = false;
+	Rigidbody rb;
 
-	public Vector3 GetAnchorPos ()
-	{
+	private void Start () {
+		rb = GetComponent<Rigidbody>();
+	}
+
+	public Vector3 GetAnchorPos () {
 		return anchor.position;
 	}
 
-	public void CreateAnchor (Vector3 anchorPos)
-	{
+	public void CreateAnchor (Vector3 anchorPos) {
 		if (!hasAnchor) {
 			anchor = Instantiate(new GameObject(), transform).transform;
 			hasAnchor = true;
 		}
 		anchor.position = anchorPos;
+	}
+
+	public void AddForce (Vector3 force) {
+		if (rb != null) {
+			rb.AddForce(force);
+		}
 	}
 
 	public void DestoryAnchor ()
