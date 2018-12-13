@@ -24,24 +24,27 @@ public class AstriodController : MonoBehaviour {
 
     //temporary behavior
     void OnCollisionEnter(Collision other) {
-        if (rb.velocity.magnitude > 0.5f && other.gameObject.GetComponent<AstriodController>()) {
-            GameObject newParticles = Instantiate(TerrainGenerator.instance.asteroidExplosion, transform.position, Quaternion.identity);
-            newParticles.GetComponent<Rigidbody>().velocity = other.relativeVelocity;
-            if (size > 0) { //0 is a fragment
-                CreateDebris();
-            }
+		if (size > 0) {
+			AstriodController otherAstroid = other.gameObject.GetComponent<AstriodController>();
+			if (other.gameObject.CompareTag("Deadly") || (otherAstroid != null && otherAstroid.size > 0 && other.relativeVelocity.magnitude > 20)) {
+				GameObject newParticles = Instantiate(TerrainGenerator.instance.asteroidExplosion, transform.position, Quaternion.identity);
+				newParticles.GetComponent<Rigidbody>().velocity = other.relativeVelocity;
+				if (size > 0) { //0 is a fragment
+					CreateDebris(other.relativeVelocity.magnitude);
+				}
 
-            Destroy(gameObject);
+				Destroy(gameObject);
+			}
         }
     }
 
-    void CreateDebris() {
+    void CreateDebris(float collisionForce) {
         int numDebris = size * debrisFactor;
         for (int i = 0; i < numDebris; i++) {
-            Vector3 spawnOffset = Random.insideUnitSphere * size;
+            Vector3 spawnOffset = Random.onUnitSphere * size;
 
-            GameObject newDebrisPiece = Instantiate(TerrainGenerator.instance.asteroidPrefab, transform.position + spawnOffset, Quaternion.identity);
-            newDebrisPiece.GetComponent<Rigidbody>().velocity = spawnOffset * Random.Range(6f, 10f);
+            GameObject newDebrisPiece = Instantiate(TerrainGenerator.instance.asteroidPrefab, transform.position + spawnOffset * 1.5f, Quaternion.identity, transform.root);
+            // newDebrisPiece.GetComponent<Rigidbody>().velocity = spawnOffset * Random.Range(0.00001f, 0.0001f) * collisionForce;
             newDebrisPiece.GetComponent<AstriodController>().Init(0);
         }
     }

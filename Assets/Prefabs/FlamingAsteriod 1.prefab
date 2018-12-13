@@ -28,7 +28,7 @@ GameObject:
   - component: {fileID: 198057464541179122}
   m_Layer: 0
   m_Name: FlamingAsteriod 1
-  m_TagString: Untagged
+  m_TagString: Deadly
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -95,7 +95,7 @@ Rigidbody:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1898692366384016}
   serializedVersion: 2
-  m_Mass: 10000
+  m_Mass: 1000000
   m_Drag: 0
   m_AngularDrag: 0
   m_UseGravity: 0
