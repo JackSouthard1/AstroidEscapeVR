@@ -127,13 +127,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fcb7a8281d191674fa828e9f672f03c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  meshes:
-  - {fileID: 4300014, guid: 4a264fa6034308f46bd8b81d8a2e6d01, type: 3}
-  - {fileID: 4300012, guid: 4a264fa6034308f46bd8b81d8a2e6d01, type: 3}
-  - {fileID: 4300016, guid: 4a264fa6034308f46bd8b81d8a2e6d01, type: 3}
-  - {fileID: 4300010, guid: 4a264fa6034308f46bd8b81d8a2e6d01, type: 3}
-  - {fileID: 4300018, guid: 4a264fa6034308f46bd8b81d8a2e6d01, type: 3}
   scaleVariance: 0.2
+  debrisFactor: 5
 --- !u!114 &114550101328019564
 MonoBehaviour:
   m_ObjectHideFlags: 1

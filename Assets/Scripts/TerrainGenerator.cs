@@ -18,11 +18,16 @@ public class TerrainGenerator : MonoBehaviour {
     public float launchConeAngle;
     public float minLaunchSpeed;
     public float maxLaunchSpeed;
+    public float minFlamingThreshold;
     float nextLaunch;
 
     [Space(15)]
     public GameObject asteroidPrefab;
     public GameObject asteroidExplosion;
+    public GameObject flamingAsteroidPrefab;
+    public AsteroidData[] asteroidDatas;
+    Dictionary<int, List<Mesh>> asteroidsBySize = new Dictionary<int, List<Mesh>>();
+    int maxAsteroidSize;
 
     int curChunkId;
     List<GameObject> chunks = new List<GameObject>();
@@ -31,12 +36,29 @@ public class TerrainGenerator : MonoBehaviour {
 
     void Awake() {
         instance = this;
+        SetupAsteroidDatas();
     }
 
     void Start() {
         playerRb = FindObjectOfType<PlayerController>().GetComponent<Rigidbody>();
         nextLaunch = Time.time + Random.Range(minLaunchWait, maxLaunchWait);
         UpdateTerrain();
+    }
+
+    void SetupAsteroidDatas() {
+        int curMaxSize = 0;
+
+        foreach (AsteroidData data in asteroidDatas) {
+            if (!asteroidsBySize.ContainsKey(data.size)) {
+                asteroidsBySize.Add(data.size, new List<Mesh>());
+                if (data.size > curMaxSize) {
+                    curMaxSize = data.size;
+                }
+            }
+            asteroidsBySize[data.size].Add(data.mesh);
+        }
+
+        maxAsteroidSize = curMaxSize + 1;
     }
 
     void UpdateTerrain() {
@@ -51,7 +73,7 @@ public class TerrainGenerator : MonoBehaviour {
             Vector2 circlePos = Random.insideUnitCircle * beltRadius;
             Vector3 spawnPos = new Vector3(circlePos.x, circlePos.y, curSpawnPos);
 
-            Instantiate(asteroidPrefab, spawnPos, Quaternion.identity, newChunk.transform);
+            CreateRandomAsteroid(spawnPos, newChunk.transform);
 
             curSpawnPos += terrainStep;
         }
@@ -73,6 +95,12 @@ public class TerrainGenerator : MonoBehaviour {
         }
     }
 
+    GameObject CreateRandomAsteroid(Vector3 spawnPos, Transform parentChunk) {
+        GameObject newAsteroid = Instantiate(asteroidPrefab, spawnPos, Quaternion.identity, parentChunk);
+        newAsteroid.GetComponent<AstriodController>().Init(Random.Range(1, maxAsteroidSize));
+        return newAsteroid;
+    }
+
     void LaunchAsteroid() {
         float launchSpeed = Random.Range(minLaunchSpeed, maxLaunchSpeed);
         float buffer = Mathf.Max(launchRadius * playerRb.velocity.z / launchSpeed, 50f) + Random.Range(-launchBufferOffset, launchBufferOffset); //z position to spawn at, include this arbitrary minimum distance so that it can't be too close or spawn behind us
@@ -80,7 +108,13 @@ public class TerrainGenerator : MonoBehaviour {
         float randomAngle = Random.Range(0, Mathf.PI); // a random angle on the top of the unit circle
         Vector3 spawnPos = new Vector3(Mathf.Cos(randomAngle) * launchRadius, Mathf.Sin(randomAngle) * launchRadius, playerRb.position.z + buffer);
 
-        GameObject newMovingAsteroid = Instantiate(asteroidPrefab, spawnPos, Quaternion.identity, chunks[chunks.Count - 1].transform); //include it in the farthest forward chunk so that it unloads last
+
+        GameObject newMovingAsteroid;
+        if (launchSpeed < minFlamingThreshold) {
+            newMovingAsteroid = CreateRandomAsteroid(spawnPos, chunks[chunks.Count - 1].transform); //include it in the farthest forward chunk so that it unloads last
+        } else {
+            newMovingAsteroid = Instantiate(flamingAsteroidPrefab, spawnPos, Random.rotation, chunks[chunks.Count - 1].transform);
+        }
         Rigidbody newAsteroidRb = newMovingAsteroid.GetComponent<Rigidbody>();
         newAsteroidRb.drag = 0;
 
@@ -96,5 +130,16 @@ public class TerrainGenerator : MonoBehaviour {
 
     float GetPosForChunkId(int id) {
         return id * chunkSize + transform.position.z;
+    }
+
+    public Mesh GetMeshOfSize(int size) {
+        List<Mesh> datas = asteroidsBySize[size];
+        return datas[Random.Range(0, datas.Count)];
+    }
+
+    [System.Serializable]
+    public struct AsteroidData {
+        public Mesh mesh;
+        public int size;
     }
 }
