@@ -17,7 +17,8 @@ public class Grabable : MonoBehaviour {
 
 	public void CreateAnchor (Vector3 anchorPos) {
 		if (!hasAnchor) {
-			anchor = Instantiate(new GameObject(), transform).transform;
+			anchor = new GameObject("Anchor").transform;
+			anchor.transform.parent = transform;
 			hasAnchor = true;
 		}
 		anchor.position = anchorPos;
