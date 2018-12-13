@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class TerrainGenerator : MonoBehaviour {
+    public static TerrainGenerator instance;
+
     public float terrainStep;
     public float beltRadius;
     public float chunkSize;
@@ -20,11 +22,16 @@ public class TerrainGenerator : MonoBehaviour {
 
     [Space(15)]
     public GameObject asteroidPrefab;
+    public GameObject asteroidExplosion;
 
     int curChunkId;
     List<GameObject> chunks = new List<GameObject>();
 
     Rigidbody playerRb;
+
+    void Awake() {
+        instance = this;
+    }
 
     void Start() {
         playerRb = FindObjectOfType<PlayerController>().GetComponent<Rigidbody>();
