@@ -112,7 +112,7 @@ public class GunController : MonoBehaviour {
 		}
 	}
 
-	void Detach (bool attached = false)
+	public void Detach (bool attached = false)
 	{
 		if (state == State.grappling) {
 			lr.enabled = false;

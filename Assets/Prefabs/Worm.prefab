@@ -69,6 +69,7 @@ GameObject:
   - component: {fileID: 4109416645022016}
   - component: {fileID: 95256987651099134}
   - component: {fileID: 114007433073700038}
+  - component: {fileID: 54694086540079792}
   m_Layer: 0
   m_Name: Worm
   m_TagString: Deadly
@@ -974,6 +975,21 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1698146857963676}
   m_Mesh: {fileID: 4300004, guid: 5fa1aa5754f24b04e8dec2ad020d0275, type: 3}
+--- !u!54 &54694086540079792
+Rigidbody:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1092819357069068}
+  serializedVersion: 2
+  m_Mass: 30000
+  m_Drag: 0
+  m_AngularDrag: 0
+  m_UseGravity: 0
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!64 &64056336173846626
 MeshCollider:
   m_ObjectHideFlags: 1
@@ -1095,6 +1111,10 @@ MonoBehaviour:
   maxFollowDist: 120
   speed: 4
   speedIncreaseRate: 0.05
+  spawnDistance: 50
+  swallowStartPos: {fileID: 4790864319015774}
+  swallowEndPos: {fileID: 4762945938581424}
+  swallowTime: 2
 --- !u!135 &135567205669613734
 SphereCollider:
   m_ObjectHideFlags: 1
