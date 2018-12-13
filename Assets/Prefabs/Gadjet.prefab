@@ -864,11 +864,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxRange: 100
   swingForce: 150000
-  grabThrowForceMul: 1000000
-  maxThrowForce: 150000
+  grabThrowForceMul: 2000000
+  maxThrowForce: 300000
   grappleTolerence: 2
   grabTolerence: 0.2
-  grabberSpeed: 50
+  grabberSpeed: 100
   swingMultiplier: 30
   mask:
     serializedVersion: 2
