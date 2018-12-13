@@ -42,7 +42,7 @@ public class AstriodController : MonoBehaviour {
 
             GameObject newDebrisPiece = Instantiate(TerrainGenerator.instance.asteroidPrefab, transform.position + spawnOffset, Quaternion.identity);
             newDebrisPiece.GetComponent<Rigidbody>().velocity = spawnOffset * Random.Range(6f, 10f);
-            newDebrisPiece.GetComponent<AstriodController>().Init(size - 1);
+            newDebrisPiece.GetComponent<AstriodController>().Init(0);
         }
     }
 }
