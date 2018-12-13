@@ -32,7 +32,7 @@ public class PlayerController : MonoBehaviour {
         Destroy(guns[0].gameObject);
         guns[1].Detach();
         Destroy(guns[1].gameObject);
-        Destroy(GetComponent<Rigidbody>());
+		GetComponent<Rigidbody>().isKinematic = true;
         Destroy(GetComponent<Collider>());
 
         FindObjectOfType<WormController>().StartSwallowSequence();

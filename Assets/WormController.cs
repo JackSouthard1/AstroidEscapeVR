@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.VR;
 
 public class WormController : MonoBehaviour {
     enum State {
@@ -22,6 +23,7 @@ public class WormController : MonoBehaviour {
     [Space(15)]
     public Transform swallowStartPos;
     public Transform swallowEndPos;
+	public Transform lookPoint;
     public float swallowTime;
 
     Rigidbody rb;
@@ -72,15 +74,29 @@ public class WormController : MonoBehaviour {
     }
 
     IEnumerator SwallowSequence() {
+		Quaternion initialRot = player.rotation;
 
         float p = 0f;
         while (p < 1f) {
-            Camera.main.transform.position = Vector3.Lerp(swallowStartPos.position, swallowEndPos.position, p);
-            yield return new WaitForEndOfFrame();
-            p += (Time.deltaTime / swallowTime);
+			GetComponent<Rigidbody>().isKinematic = true;
+
+			player.position = Vector3.Lerp(swallowStartPos.position - Camera.main.transform.localRotation * Camera.main.transform.localPosition, swallowEndPos.position - Camera.main.transform.rotation * Camera.main.transform.localPosition, p);
+
+			yield return new WaitForEndOfFrame();
+
+			player.rotation = Quaternion.Inverse(UnityEngine.XR.InputTracking.GetLocalRotation(UnityEngine.XR.XRNode.CenterEye));
+
+			p += (Time.deltaTime / swallowTime);
         }
 
         OnSwallowComplete();
+
+		while(true) {
+			player.position = Vector3.Lerp(swallowStartPos.position - Camera.main.transform.localRotation * Camera.main.transform.localPosition, swallowEndPos.position - Camera.main.transform.rotation * Camera.main.transform.localPosition, p);
+
+			yield return new WaitForEndOfFrame();
+			player.rotation = Quaternion.Inverse(UnityEngine.XR.InputTracking.GetLocalRotation(UnityEngine.XR.XRNode.CenterEye));
+		}
     }
 
     void OnSwallowComplete() {
