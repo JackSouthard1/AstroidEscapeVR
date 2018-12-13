@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class TerrainGenerator : MonoBehaviour {
+    public static TerrainGenerator instance;
+
     public float terrainStep;
     public float beltRadius;
     public float chunkSize;
@@ -10,7 +12,7 @@ public class TerrainGenerator : MonoBehaviour {
 
     [Space(15)]
     public float launchRadius;
-    public float launchBuffer;
+    public float launchBufferOffset;
     public float minLaunchWait;
     public float maxLaunchWait;
     public float launchConeAngle;
@@ -20,14 +22,19 @@ public class TerrainGenerator : MonoBehaviour {
 
     [Space(15)]
     public GameObject asteroidPrefab;
+    public GameObject asteroidExplosion;
 
     int curChunkId;
     List<GameObject> chunks = new List<GameObject>();
 
-    Transform playerObj;
+    Rigidbody playerRb;
+
+    void Awake() {
+        instance = this;
+    }
 
     void Start() {
-        playerObj = FindObjectOfType<PlayerController>().transform;
+        playerRb = FindObjectOfType<PlayerController>().GetComponent<Rigidbody>();
         nextLaunch = Time.time + Random.Range(minLaunchWait, maxLaunchWait);
         UpdateTerrain();
     }
@@ -67,19 +74,22 @@ public class TerrainGenerator : MonoBehaviour {
     }
 
     void LaunchAsteroid() {
+        float launchSpeed = Random.Range(minLaunchSpeed, maxLaunchSpeed);
+        float buffer = Mathf.Max(launchRadius * playerRb.velocity.z / launchSpeed, 50f) + Random.Range(-launchBufferOffset, launchBufferOffset); //z position to spawn at, include this arbitrary minimum distance so that it can't be too close or spawn behind us
+
         float randomAngle = Random.Range(0, Mathf.PI); // a random angle on the top of the unit circle
-        Vector3 spawnPos = new Vector3(Mathf.Cos(randomAngle) * launchRadius, Mathf.Sin(randomAngle) * launchRadius, playerObj.position.z + launchBuffer);
+        Vector3 spawnPos = new Vector3(Mathf.Cos(randomAngle) * launchRadius, Mathf.Sin(randomAngle) * launchRadius, playerRb.position.z + buffer);
 
         GameObject newMovingAsteroid = Instantiate(asteroidPrefab, spawnPos, Quaternion.identity, chunks[chunks.Count - 1].transform); //include it in the farthest forward chunk so that it unloads last
         Rigidbody newAsteroidRb = newMovingAsteroid.GetComponent<Rigidbody>();
         newAsteroidRb.drag = 0;
 
         Quaternion launchAngle = Quaternion.Euler(0, Random.Range(-launchConeAngle, launchConeAngle), (randomAngle * Mathf.Rad2Deg) - 180f + Random.Range(-launchConeAngle, launchConeAngle));
-        newAsteroidRb.velocity = launchAngle * Vector3.right * Random.Range(minLaunchSpeed, maxLaunchSpeed);
+        newAsteroidRb.velocity = launchAngle * Vector3.right * launchSpeed;
     }
 
     void LateUpdate() {
-        if (playerObj.position.z + chunkSize > GetPosForChunkId(curChunkId - 1)) { // if we are close to the "next chunk" we should make a new one
+        if (playerRb.transform.position.z + chunkSize > GetPosForChunkId(curChunkId - 1)) { // if we are close to the "next chunk" we should make a new one
             UpdateTerrain();
         }
     }

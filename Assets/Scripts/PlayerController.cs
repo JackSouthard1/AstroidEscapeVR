@@ -7,9 +7,10 @@ public class PlayerController : MonoBehaviour {
 	public GameObject gunPrefab;
 	public Transform[] hands;
 
+    List<GunController> guns = new List<GunController>();
+
 	// Use this for initialization
 	void Start () {
-		List<GunController> guns = new List<GunController>();
 		for (int i = 0; i < hands.Length; i++) {
 			GameObject gun = Instantiate(gunPrefab, hands[i]);
 			gun.transform.localPosition = Vector3.zero;
@@ -25,4 +26,21 @@ public class PlayerController : MonoBehaviour {
 	void Update () {
 		
 	}
+
+    void StartSwallow() {
+        guns[0].Detach();
+        Destroy(guns[0].gameObject);
+        guns[1].Detach();
+        Destroy(guns[1].gameObject);
+        Destroy(GetComponent<Rigidbody>());
+        Destroy(GetComponent<Collider>());
+
+        FindObjectOfType<WormController>().StartSwallowSequence();
+    }
+
+    void OnTriggerEnter(Collider other) {
+        if (other.gameObject.CompareTag("WormMouth")) {
+            StartSwallow();
+        }
+    }
 }

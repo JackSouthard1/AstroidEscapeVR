@@ -140,7 +140,7 @@ public class GunController : MonoBehaviour {
 		grabAnimator.SetBool("IsGrabbing", false);
 	}
 
-	void Detach (bool attached = false)
+	public void Detach (bool attached = false)
 	{
 			
 		if (state == State.grabing) {
