@@ -9,8 +9,8 @@ public class MusicManager : MonoBehaviour {
     AudioSource[] tracks;
     AudioState[] states;
 
-    public int numActiveTracks;
-    float temp;
+    int numActiveTracks;
+    public float maxTrackVolume;
 
     struct AudioState {
         public int trackId;
@@ -43,19 +43,7 @@ public class MusicManager : MonoBehaviour {
         }
     }
 
-	private void Update() {
-        if (Input.GetKeyDown(KeyCode.UpArrow)) {
-            temp += 0.2f;
-            UpdateIntensity(temp, 2);
-        }
-
-        if (Input.GetKeyDown(KeyCode.DownArrow)) {
-            temp -= 0.2f;
-            UpdateIntensity(temp, 2);
-        }
-	}
-
-	void UpdateIntensity(float intensity, float time) {
+	public void UpdateIntensity(float intensity, float time) {
         numActiveTracks = Mathf.FloorToInt(intensity * clips.Length);
         print(intensity);
         for (int i = 1; i < clips.Length; i++) {
@@ -76,7 +64,7 @@ public class MusicManager : MonoBehaviour {
     }
 
     void UpdateTrack(int id) {
-        tracks[id].volume = Mathf.Lerp(states[id].initialVolume, states[id].goalVolume, states[id].timer);
+        tracks[id].volume = Mathf.Lerp(states[id].initialVolume, states[id].goalVolume * maxTrackVolume, states[id].timer);
         states[id].timer += Time.deltaTime;
         if (states[id].timer >= 1f) {
             states[id].active = false;

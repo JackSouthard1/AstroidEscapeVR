@@ -13,12 +13,17 @@ public class TerrainGenerator : MonoBehaviour {
     [Space(15)]
     public float launchRadius;
     public float launchBufferOffset;
-    public float minLaunchWait;
-    public float maxLaunchWait;
+    public float minChaosLaunchWait;
+    public float maxChaosLaunchWait;
+    public float launchWaitVariance;
     public float launchConeAngle;
     public float minLaunchSpeed;
     public float maxLaunchSpeed;
-    public float minFlamingThreshold;
+    public float minChaosFlamingChance;
+    public float maxChaosFlamingChance;
+    public float minFlamingSpeed;
+    public float maxFlamingSpeed;
+    public float chaosIncreaseRate;
     float nextLaunch;
 
     [Space(15)]
@@ -41,7 +46,7 @@ public class TerrainGenerator : MonoBehaviour {
 
     void Start() {
         playerRb = FindObjectOfType<PlayerController>().GetComponent<Rigidbody>();
-        nextLaunch = Time.time + Random.Range(minLaunchWait, maxLaunchWait);
+        nextLaunch = Time.time + Random.Range(maxChaosLaunchWait, minChaosLaunchWait);
         UpdateTerrain();
     }
 
@@ -90,7 +95,7 @@ public class TerrainGenerator : MonoBehaviour {
 
     void Update() {
         if (Time.time > nextLaunch) {
-            nextLaunch = Time.time + Random.Range(minLaunchWait, maxLaunchWait);
+            nextLaunch = Time.time + Mathf.Max(maxChaosLaunchWait, Mathf.Lerp(minChaosLaunchWait, maxChaosLaunchWait, GetChaosFactor()) + Random.Range(-launchWaitVariance, launchWaitVariance));
             LaunchAsteroid();
         }
     }
@@ -102,17 +107,18 @@ public class TerrainGenerator : MonoBehaviour {
     }
 
     void LaunchAsteroid() {
-        float launchSpeed = Random.Range(minLaunchSpeed, maxLaunchSpeed);
+        bool isFlaming = Random.value > Mathf.Lerp(minChaosFlamingChance, maxChaosFlamingChance, GetChaosFactor());
+
+        float launchSpeed = (!isFlaming) ? Random.Range(minLaunchSpeed, maxLaunchSpeed) : Random.Range(minFlamingSpeed, maxFlamingSpeed);
         float buffer = Mathf.Max(launchRadius * playerRb.velocity.z / launchSpeed, 50f) + Random.Range(-launchBufferOffset, launchBufferOffset); //z position to spawn at, include this arbitrary minimum distance so that it can't be too close or spawn behind us
 
         float randomAngle = Random.Range(0, Mathf.PI); // a random angle on the top of the unit circle
         Vector3 spawnPos = new Vector3(Mathf.Cos(randomAngle) * launchRadius, Mathf.Sin(randomAngle) * launchRadius, playerRb.position.z + buffer);
 
-
         GameObject newMovingAsteroid;
 		Quaternion launchAngle = Quaternion.Euler(0, Random.Range(-launchConeAngle, launchConeAngle), (randomAngle * Mathf.Rad2Deg) - 180f + Random.Range(-launchConeAngle, launchConeAngle));
 
-		if (launchSpeed < minFlamingThreshold) {
+        if (!isFlaming) {
             newMovingAsteroid = CreateRandomAsteroid(spawnPos, chunks[chunks.Count - 1].transform); //include it in the farthest forward chunk so that it unloads last
         } else {
             newMovingAsteroid = Instantiate(flamingAsteroidPrefab, spawnPos, launchAngle, chunks[chunks.Count - 1].transform);
@@ -131,6 +137,11 @@ public class TerrainGenerator : MonoBehaviour {
 
     float GetPosForChunkId(int id) {
         return id * chunkSize + transform.position.z;
+    }
+
+    float GetChaosFactor() { //chaos factor (0 to 1) is based on distance and affects the rate of moving and flaming asteroids
+        float curPlayerDistance = playerRb.transform.position.z;
+        return 1 - (1 / Mathf.Sqrt(chaosIncreaseRate * Mathf.Max(curPlayerDistance,0) + 1));
     }
 
     public Mesh GetMeshOfSize(int size) {
