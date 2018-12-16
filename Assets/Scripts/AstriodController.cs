@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class AstriodController : MonoBehaviour {
+	public float massFactor;
 	public float scaleVariance;
     public int debrisFactor;
     int size;
@@ -20,22 +21,20 @@ public class AstriodController : MonoBehaviour {
         GetComponent<MeshCollider>().sharedMesh = mesh;
 
         rb = GetComponent<Rigidbody>();
+		rb.mass = massFactor * Mathf.Pow(size + 1, 3);
     }
 
     //temporary behavior
     void OnCollisionEnter(Collision other) {
-		if (size > 0) {
-			AstriodController otherAstroid = other.gameObject.GetComponent<AstriodController>();
-			if (other.gameObject.CompareTag("Deadly") || (otherAstroid != null && otherAstroid.size > 0 && other.relativeVelocity.magnitude > 20)) {
-				GameObject newParticles = Instantiate(TerrainGenerator.instance.asteroidExplosion, transform.position, Quaternion.identity);
-				newParticles.GetComponent<Rigidbody>().velocity = other.relativeVelocity;
-				if (size > 0) { //0 is a fragment
-					CreateDebris(other.relativeVelocity.magnitude);
-				}
-
-				Destroy(gameObject);
+		if (other.gameObject.CompareTag("Deadly")) {
+			GameObject newParticles = Instantiate(TerrainGenerator.instance.asteroidExplosion, transform.position, Quaternion.identity);
+			newParticles.GetComponent<Rigidbody>().velocity = other.relativeVelocity;
+			if (size > 0) { //0 is a fragment
+				CreateDebris(other.relativeVelocity.magnitude);
 			}
-        }
+
+			Destroy(gameObject);
+		}
     }
 
     void CreateDebris(float collisionForce) {

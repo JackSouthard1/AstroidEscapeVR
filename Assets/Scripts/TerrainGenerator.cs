@@ -110,15 +110,16 @@ public class TerrainGenerator : MonoBehaviour {
 
 
         GameObject newMovingAsteroid;
-        if (launchSpeed < minFlamingThreshold) {
+		Quaternion launchAngle = Quaternion.Euler(0, Random.Range(-launchConeAngle, launchConeAngle), (randomAngle * Mathf.Rad2Deg) - 180f + Random.Range(-launchConeAngle, launchConeAngle));
+
+		if (launchSpeed < minFlamingThreshold) {
             newMovingAsteroid = CreateRandomAsteroid(spawnPos, chunks[chunks.Count - 1].transform); //include it in the farthest forward chunk so that it unloads last
         } else {
-            newMovingAsteroid = Instantiate(flamingAsteroidPrefab, spawnPos, Random.rotation, chunks[chunks.Count - 1].transform);
+            newMovingAsteroid = Instantiate(flamingAsteroidPrefab, spawnPos, launchAngle, chunks[chunks.Count - 1].transform);
         }
         Rigidbody newAsteroidRb = newMovingAsteroid.GetComponent<Rigidbody>();
         newAsteroidRb.drag = 0;
 
-        Quaternion launchAngle = Quaternion.Euler(0, Random.Range(-launchConeAngle, launchConeAngle), (randomAngle * Mathf.Rad2Deg) - 180f + Random.Range(-launchConeAngle, launchConeAngle));
         newAsteroidRb.velocity = launchAngle * Vector3.right * launchSpeed;
     }
 

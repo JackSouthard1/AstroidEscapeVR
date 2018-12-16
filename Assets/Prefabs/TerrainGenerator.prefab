@@ -67,7 +67,7 @@ MonoBehaviour:
     type: 2}
   asteroidExplosion: {fileID: 1701965939655616, guid: 174ff6d23657b4aadbb594e8056d092d,
     type: 2}
-  flamingAsteroidPrefab: {fileID: 1898692366384016, guid: 7ed057ca4e4d99f48b3e7324b6dac560,
+  flamingAsteroidPrefab: {fileID: 1494026229611534, guid: c2a519908e9c1df4795889d6d73adcde,
     type: 2}
   asteroidDatas:
   - mesh: {fileID: 4300014, guid: 4a264fa6034308f46bd8b81d8a2e6d01, type: 3}

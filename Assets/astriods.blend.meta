@@ -22,6 +22,8 @@ ModelImporter:
     100032: fragment4
     100034: fragment5
     100036: fragment6
+    100038: astriod5
+    100040: flameShell
     400000: //RootNode
     400002: Icosphere
     400004: Icosphere_001
@@ -41,7 +43,10 @@ ModelImporter:
     400032: fragment4
     400034: fragment5
     400036: fragment6
+    400038: astriod5
+    400040: flameShell
     2100000: unnamed
+    2100002: ShellMat
     2300000: Icosphere
     2300002: Icosphere_001
     2300004: Icosphere_002
@@ -60,6 +65,8 @@ ModelImporter:
     2300030: fragment4
     2300032: fragment5
     2300034: fragment6
+    2300036: astriod5
+    2300038: flameShell
     3300000: Icosphere
     3300002: Icosphere_001
     3300004: Icosphere_002
@@ -78,6 +85,8 @@ ModelImporter:
     3300030: fragment4
     3300032: fragment5
     3300034: fragment6
+    3300036: astriod5
+    3300038: flameShell
     4300000: Icosphere_003
     4300002: Icosphere
     4300004: Icosphere_001
@@ -96,6 +105,8 @@ ModelImporter:
     4300030: fragment5
     4300032: fragment2
     4300034: fragment3
+    4300036: astriod5
+    4300038: flameShell
     7400000: Default Take
     9500000: //RootNode
   externalObjects: {}
