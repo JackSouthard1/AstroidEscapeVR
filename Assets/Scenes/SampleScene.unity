@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028334, g: 0.22571328, b: 0.3069217, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -113,6 +113,53 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &157803765
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 157803767}
+  - component: {fileID: 157803766}
+  m_Layer: 0
+  m_Name: MusicManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &157803766
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 157803765}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ea732a3a0c5c40d6a9ca0c58ce1cd46, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  clips:
+  - {fileID: 8300000, guid: 45b2223e7a3b24191b8aca363d58cbb3, type: 3}
+  - {fileID: 8300000, guid: fbe83a4ce579c4ec385d8880a21730c3, type: 3}
+  - {fileID: 8300000, guid: 169ac3d006df843288c429307d7f3950, type: 3}
+  - {fileID: 8300000, guid: 4d3c96468a30e49a1aabc09afba44078, type: 3}
+  numActiveTracks: 0
+  maxTrackVolume: 0.25
+--- !u!4 &157803767
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 157803765}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &170076733
 GameObject:
   m_ObjectHideFlags: 0
@@ -217,6 +264,21 @@ Prefab:
     - target: {fileID: 4109416645022016, guid: c1d6a53ba9688c44982fad689a10c743, type: 2}
       propertyPath: m_RootOrder
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 114007433073700038, guid: c1d6a53ba9688c44982fad689a10c743,
+        type: 2}
+      propertyPath: lowIntensityDist
+      value: 40
+      objectReference: {fileID: 0}
+    - target: {fileID: 114007433073700038, guid: c1d6a53ba9688c44982fad689a10c743,
+        type: 2}
+      propertyPath: highIntensityDist
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 114007433073700038, guid: c1d6a53ba9688c44982fad689a10c743,
+        type: 2}
+      propertyPath: audioUpdateTime
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c1d6a53ba9688c44982fad689a10c743, type: 2}

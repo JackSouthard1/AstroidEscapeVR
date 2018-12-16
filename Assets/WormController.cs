@@ -26,6 +26,12 @@ public class WormController : MonoBehaviour {
 	public Transform lookPoint;
     public float swallowTime;
 
+    [Space(15)]
+    public float lowIntensityDist;
+    public float highIntensityDist;
+    public float audioUpdateTime;
+    float nextAudioRefresh;
+
     Rigidbody rb;
 
 	void Start () {
@@ -34,6 +40,11 @@ public class WormController : MonoBehaviour {
 	}
 	
 	void Update () {
+        if (Time.time > audioUpdateTime) {
+            MusicManager.instance.UpdateIntensity(CalculateMusicIntensity(), audioUpdateTime);
+            nextAudioRefresh = Time.time + audioUpdateTime;
+        }
+
         switch (state) {
             case State.Chasing:
                 float dist = (transform.position - player.position).magnitude;
@@ -102,5 +113,11 @@ public class WormController : MonoBehaviour {
     void OnSwallowComplete() {
         print("u ded");
         state = State.Finished;
+    }
+
+    float CalculateMusicIntensity() {
+        float dist = Vector3.Distance(transform.position, player.transform.position);
+
+        return Mathf.Clamp01((dist - lowIntensityDist) / (highIntensityDist - lowIntensityDist)); //linear falloff
     }
 }
