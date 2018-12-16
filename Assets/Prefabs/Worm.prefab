@@ -625,7 +625,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1500046027256998}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 15.4, z: -1.212995}
+  m_LocalPosition: {x: 0, y: 0, z: 20}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4055069179728984}
@@ -1236,7 +1236,7 @@ MonoBehaviour:
   maxFollowDist: 120
   speed: 8
   speedIncreaseRate: 0.1
-  spawnDistance: 50
+  spawnDistance: -50
   swallowStartPos: {fileID: 4853425310207116}
   swallowEndPos: {fileID: 4762945938581424}
   lookPoint: {fileID: 4790864319015774}

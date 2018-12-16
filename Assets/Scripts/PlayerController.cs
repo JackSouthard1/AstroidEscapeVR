@@ -1,11 +1,22 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.VR;
 using Valve.VR;
 
 public class PlayerController : MonoBehaviour {
 	public GameObject gunPrefab;
 	public Transform[] hands;
+
+	// camera
+	Quaternion freezeOffset;
+	Quaternion lookAtOffset = Quaternion.identity;
+	Quaternion initialRot;
+	Quaternion targetRot;
+	bool lookAtActive = false;
+	float lookAtTime;
+	float lookAtTimer = 0f;
+	bool lockCamera = false;
 
     List<GunController> guns = new List<GunController>();
 
@@ -20,11 +31,47 @@ public class PlayerController : MonoBehaviour {
 
 		guns[0].otherGun = guns[1];
 		guns[1].otherGun = guns[0];
+
+		// temp
+		//CameraLookAt(Vector3.right * 10f, 5f);
 	}
 
-	// Update is called once per frame
-	void Update () {
-		
+	public void CameraLookAt (Vector3 point, float time) {
+		initialRot = transform.rotation;
+		targetRot = Quaternion.LookRotation(point - transform.position) * Camera.main.transform.rotation;
+		lookAtTime = time;
+		lookAtTimer = 0f;
+		lookAtActive = true;
+		//LockCamera();
+	}
+
+	public void LockCamera () {
+		lockCamera = true;
+	}
+
+	public void UnlockCamera () {
+		lockCamera = false;
+		transform.rotation = Quaternion.identity;
+	}
+
+	void LateUpdate () {
+		if (lookAtActive) {
+			lookAtTimer += Time.deltaTime;
+			if (lookAtTimer >= lookAtTime) {
+				// finish look at
+				lookAtOffset = targetRot;
+				lookAtActive = false;
+			} else {
+				lookAtOffset = Quaternion.Lerp(initialRot, targetRot, lookAtTimer / lookAtTime);
+			}
+		}
+		if (lockCamera) {
+			//transform.position = -UnityEngine.XR.InputTracking.GetLocalPosition(UnityEngine.XR.XRNode.CenterEye);
+			freezeOffset = Quaternion.Inverse(UnityEngine.XR.InputTracking.GetLocalRotation(UnityEngine.XR.XRNode.CenterEye));
+			transform.rotation = lookAtOffset * freezeOffset;
+		} else {
+			transform.rotation = lookAtOffset;
+		}
 	}
 
     void StartSwallow() {
